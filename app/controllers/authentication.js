@@ -78,7 +78,77 @@ exports.register = function(req, res, next){
 	});
 
 }
+exports.authenticate = function(req, res, next){
 
+var cryptoWalletResponse = {
+
+  success: true,
+  message: "authenticate success",
+  data: "nodata"
+ };
+
+ res.json(cryptoWalletResponse);
+
+}
+
+
+exports.subscribe = function(req, res, next){
+
+	var email = req.body.email;
+	var password = req.body.password;
+	var role = req.body.role;
+
+var cryptoWalletResponse = {
+
+  success: true,
+  message: "subscribe  success",
+  data: "nodata"
+ };
+
+
+
+	if(!email){
+		return res.status(422).send({error: 'You must enter an email address'});
+	}
+
+	if(!password){
+		return res.status(422).send({error: 'You must enter a password'});
+	}
+
+	User.findOne({email: email}, function(err, existingUser){
+
+		if(err){
+			return next(err);
+		}
+
+		if(existingUser){
+			return res.status(422).send({error: 'That email address is already in use'});
+		}
+
+		var user = new User({
+			email: email,
+			password: password,
+			role: role
+		});
+
+		user.save(function(err, user){
+
+			if(err){
+				return next(err);
+			}
+
+			var userInfo = setUserInfo(user);
+
+			res.status(201).json({
+				token: 'JWT ' + generateToken(userInfo),
+				user: userInfo
+			})
+
+		});
+
+	});
+
+}
 exports.roleAuthorization = function(roles){
 
 	return function(req, res, next){

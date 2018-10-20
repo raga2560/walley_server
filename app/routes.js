@@ -7,6 +7,7 @@ var AuthenticationController = require('./controllers/authentication'),
     passport = require('passport');
 
 var fAuthRoutes = require('./authroutes');
+var funregisteredRoutes = require('./unregisteredroutes');
 var requireAuth = passport.authenticate('jwt', {session: false}),
     requireLogin = passport.authenticate('local', {session: false});
 
@@ -17,11 +18,19 @@ module.exports = function(app){
         todoRoutes = express.Router();
         bookingRoutes = express.Router();
         postRoutes = express.Router();
+        unregisteredRoutes = express.Router();
 
     // Auth Routes
     apiRoutes.use('/auth', authRoutes);
 
     fAuthRoutes.AuthRoutes(authRoutes, requireLogin, requireAuth);
+
+    app.use('/api', apiRoutes);
+
+
+    apiRoutes.use('/cryptowallet/unregistered', unregisteredRoutes);
+
+    funregisteredRoutes.UnregisteredRoutes(unregisteredRoutes, requireLogin, requireAuth);
 
     app.use('/api', apiRoutes);
 
